@@ -1,0 +1,9 @@
+Value LINK_TIME (\S+\s\S+\s\S+)
+Value MCS (\d+-\w+-\d/\d\s[(]\d+[)])
+Value FRAMES (\d+)
+
+				  
+Start
+  ^\| Link time\s+${LINK_TIME}
+  ^\| MCS\s+\| ${MCS}
+  ^\| Frames\s+(\| ${FRAMES}\s+){3}

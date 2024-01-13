@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ -z "$1" ]]; then
+    echo "Необходимо задать имя файла"
+    exit 1
+fi
+
+python3.12 /home/master/python/infinet/main.py "$1"
+
+chmod +x processing_status
