@@ -27,20 +27,21 @@ class StatusParser:
 
     # Извлечение содержимого обрабатываемого файла
     def _get_file_data(self) -> Optional[str]:
-        text = None
+        text = ""
 
         file_extension = os.path.splitext(self._file)[1]
 
         if file_extension != ".txt":
+            text = None
             print("Обрабатываемый файл должен иметь расширение .txt")
             return
 
         try:
-            text = ""
             with open(self._file, "r") as file:
                 lines = file.readlines()
 
             if len(lines) == 1:
+                text = None
                 print("Файл пуст")
                 return
 
@@ -48,6 +49,7 @@ class StatusParser:
                 text += line
 
         except FileNotFoundError:
+            text = None
             print("Файла с таким названием не существует")
 
         return text
