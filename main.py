@@ -1,14 +1,23 @@
+import argparse
 import logging
 import os
-import sys
 from typing import Any, Optional
 
 from textfsm import TextFSM, TextFSMTemplateError
 
+from config import HELP_TEXT, LOG_LEVEL, OUTPUT_FILENAME, TEMPLATE_FILENAME
+from error_messages import (
+    EMPTY_FILE,
+    FILE_DOES_NOT_EXIST,
+    INCORRECT_EXTENSION,
+    INCORRECT_TEMPLATE,
+    TEMPLATE_FILE_NOT_FOUND,
+)
+
 
 class StatusParser:
     def __init__(self) -> None:
-        self._file = sys.argv[1]
+        self._file = self._parse_args()
 
     # Получения данных после парсинга обрабатываемого файла при помощи шаблона
     def get_parsed_data(self) -> Optional[dict[str, Any]]:
@@ -34,7 +43,7 @@ class StatusParser:
 
         if file_extension != ".txt":
             text = None
-            logging.error("Обрабатываемый файл должен иметь расширение .txt")
+            logging.error(INCORRECT_EXTENSION)
             return
 
         try:
@@ -43,7 +52,7 @@ class StatusParser:
 
             if len(lines) == 1:
                 text = None
-                logging.error("Файл пуст")
+                logging.error(EMPTY_FILE)
                 return
 
             for line in lines:
@@ -51,7 +60,7 @@ class StatusParser:
 
         except FileNotFoundError:
             text = None
-            logging.error("Файла с таким названием не существует")
+            logging.error(FILE_DOES_NOT_EXIST)
 
         return text
 
@@ -59,22 +68,30 @@ class StatusParser:
     def _get_template(self) -> Optional[TextFSM]:
         template = None
         try:
-            with open("template.txt", "r") as file:
+            with open(TEMPLATE_FILENAME, "r") as file:
                 template = TextFSM(file)
 
         except FileNotFoundError:
-            logging.error("Не найден файл шаблона для парсинга")
+            logging.error(TEMPLATE_FILE_NOT_FOUND)
 
         except TextFSMTemplateError:
-            logging.error("Неверный формат шаблона")
+            logging.error(INCORRECT_TEMPLATE)
 
         return template
+
+    # Получение наименования файла, введённого в консоль для обработки
+    def _parse_args(self) -> str:
+        parser = argparse.ArgumentParser("Парсинг файла в формате txt")
+        parser.add_argument("file", help=HELP_TEXT)
+        args = parser.parse_args()
+
+        return args.file
 
 
 def main():
     logging.basicConfig(
-        level=logging.INFO,
-        filename="output.log",
+        level=LOG_LEVEL,
+        filename=OUTPUT_FILENAME,
         filemode="a",
         format="%(asctime)s %(levelname)s %(message)s",
     )
@@ -83,6 +100,7 @@ def main():
         data = status_parser.get_parsed_data()
         for key, value in data.items():
             logging.info(f"{key}: {value}")
+            print(f"{key}: {value}")
     except AttributeError:
         pass
 
