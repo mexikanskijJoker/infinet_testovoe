@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Any
+from typing import Any, Optional
 
 from textfsm import TextFSM, TextFSMTemplateError
 
@@ -10,7 +10,7 @@ class StatusParser:
         self._file = sys.argv[1]
 
     # Получения данных после парсинга обрабатываемого файла при помощи шаблона
-    def get_parsed_data(self) -> dict[str, Any] | None:
+    def get_parsed_data(self) -> Optional[dict[str, Any]]:
         data = self._get_file_data()
         template = self._get_template()
 
@@ -26,22 +26,21 @@ class StatusParser:
         return output
 
     # Извлечение содержимого обрабатываемого файла
-    def _get_file_data(self) -> str | None:
-        text = ""
+    def _get_file_data(self) -> Optional[str]:
+        text = None
 
         file_extension = os.path.splitext(self._file)[1]
 
         if file_extension != ".txt":
-            text = None
             print("Обрабатываемый файл должен иметь расширение .txt")
             return
 
         try:
+            text = ""
             with open(self._file, "r") as file:
                 lines = file.readlines()
 
             if len(lines) == 1:
-                text = None
                 print("Файл пуст")
                 return
 
@@ -50,23 +49,21 @@ class StatusParser:
 
         except FileNotFoundError:
             print("Файла с таким названием не существует")
-            text = None
 
         return text
 
     # Извлечение шаблона для парсинга обрабатываемого файла
-    def _get_template(self) -> TextFSM | None:
+    def _get_template(self) -> Optional[TextFSM]:
+        template = None
         try:
-            with open("/home/master/python/infinet/template.txt", "r") as file:
+            with open("template.txt", "r") as file:
                 template = TextFSM(file)
 
         except FileNotFoundError:
             print("Не найден файл шаблона для парсинга")
-            template = None
 
         except TextFSMTemplateError:
             print("Неверный формат шаблона")
-            template = None
 
         return template
 
