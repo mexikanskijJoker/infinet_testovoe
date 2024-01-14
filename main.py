@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from typing import Any, Optional
@@ -33,7 +34,7 @@ class StatusParser:
 
         if file_extension != ".txt":
             text = None
-            print("Обрабатываемый файл должен иметь расширение .txt")
+            logging.error("Обрабатываемый файл должен иметь расширение .txt")
             return
 
         try:
@@ -42,7 +43,7 @@ class StatusParser:
 
             if len(lines) == 1:
                 text = None
-                print("Файл пуст")
+                logging.error("Файл пуст")
                 return
 
             for line in lines:
@@ -50,7 +51,7 @@ class StatusParser:
 
         except FileNotFoundError:
             text = None
-            print("Файла с таким названием не существует")
+            logging.error("Файла с таким названием не существует")
 
         return text
 
@@ -62,20 +63,26 @@ class StatusParser:
                 template = TextFSM(file)
 
         except FileNotFoundError:
-            print("Не найден файл шаблона для парсинга")
+            logging.error("Не найден файл шаблона для парсинга")
 
         except TextFSMTemplateError:
-            print("Неверный формат шаблона")
+            logging.error("Неверный формат шаблона")
 
         return template
 
 
 def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        filename="output.log",
+        filemode="a",
+        format="%(asctime)s %(levelname)s %(message)s",
+    )
     status_parser = StatusParser()
     try:
         data = status_parser.get_parsed_data()
         for key, value in data.items():
-            print(f"{key}: {value}")
+            logging.info(f"{key}: {value}")
     except AttributeError:
         pass
 
